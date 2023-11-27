@@ -150,6 +150,7 @@ function drawGrid(cells, container) {
   }
 }
 
+//Grid size
 document.getElementById("selectGrid").addEventListener("change", function () {
   boardsize = parseInt(this.value, 10);
   //draw new board
@@ -164,9 +165,14 @@ drawGrid(boardsize, computerBoard);
 
 //* Ship Placement  //
 
-function shipPlacement(ship) {
-  for (let i = 0; i < ship.boardsize; i++);
-  const shipblock = document.querySelectorAll(
-    
-  );
+function randomShipPlacement(ship) {
+  for (let i = 0; i < ship.boardsize; i++) {
+    const row = Math.floor(Math.random() * boardSize);
+    const col = Math.floor(Math.random() * boardSize);
+    position.push({ row, col });
+  }
+  return position;
 }
+
+const playerRandomShipPosition = randomShipPlacement();
+const computerRandomShipPosition = randomShipPlacement();
