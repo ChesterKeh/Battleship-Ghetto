@@ -162,15 +162,11 @@ drawGrid(boardsize, computerBoard);
 
 //!End of Board creation //
 
-document.querySelectorAll(".Ships div").forEach((shipPreview) => {
-  shipPreview.addEventListener("click", function () {
-    selectedShip = this;
-  });
-});
+//* Ship Placement  //
 
-// Event listener for starting the game
-document.getElementById("startButton").addEventListener("click", function () {
-  alert("Game started!");
-  console.log("Selected ship for placement:", selectedShip.id);
-  // Add ship placement logic here
-});
+function shipPlacement(ship) {
+  for (let i = 0; i < ship.boardsize; i++);
+  const shipblock = document.querySelectorAll(
+    
+  );
+}
