@@ -1,136 +1,30 @@
-// //* Variables //
-
-// const boardSize = 5;
-// let playerBoard = generateEmptyBoard();
-// let computerBoard = generateEmptyBoard();
-// let playerShips = [5, 4, 3, 3, 2];
-// let computerShips = [5, 4, 3, 3, 2];
-// let currentPlayer = "player";
-
-// //* the playing Board generator //
-// function emptyBoard() {
-//   const board = [];
-//   for (let x = 0; x < boardSize; x++) {
-//     board[x] = [];
-//     for (let y = 0; y < boardSize; y++) {
-//       board[x][y] = 0; // 0 represents an empty cell
-//     }
-//   }
-//   return board;
-// }
-
-// function generateEmptyBoard(board, elementId, clickHandler) {
-//   const table = document.getElementById(elementId);
-//   table.innerHTML = " ";
-//   table.classList.add("container");
-
-//   for (let i = 0; i < boardSize; i++) {
-//     const row = document.createElement("tr");
-//     table.classList.add("container");
-
-//     for (let j = 0; j < boardSize; j++) {
-//       const cell = document.createElement("td");
-//       cell.dataset.row = i;
-//       cell.dataset.col = j;
-//       cell.addEventListener("click", clickHandler);
-//       if (board[i][j] > 0) {
-//         cell.classList.add("ship");
-//       }
-//       row.appendChild(cell);
-//     }
-//     table.appendChild(row);
-//   }
-//   console.log(table.outerHTML);
-// }
-
-// function handleCellClick(event) {
-//   if (currentPlayer === "player") {
-//     const row = parseInt(event.target.dataset.row);
-//     const col = parseInt(event.target.dataset.col);
-//     if (computerBoard[row][col] === 0) {
-//       const isHit = computerBoard[row][col] > 0;
-//       event.target.classList.add(isHit ? "hit" : "miss");
-//       playerBoard[row][col] = isHit ? -1 : 1;
-
-//       //! why is currentplayer = computer? //
-
-//       currentPlayer = "computer";
-//       setTimeout(computerTurn, 1000);
-//     }
-//   }
-// }
-
-// function computerTurn() {
-//   const row = Math.floor(Math.random() * boardSize);
-//   const col = Math.floor(Math.random() * boardSize);
-
-//   if (playerBoard[row][col] === 0) {
-//     const isHit = computerBoard[row][col] > 0;
-//     cell.classList.add(isHit ? "hit" : "miss");
-//     computerBoard[row][col] = isHit ? -1 : 1;
-//     currentPlayer = "player";
-//   } else {
-//     computerTurn();
-//   }
-// }
-
-// //* Ship placement
-// function placeShips(board, ships) {
-//   for (let shipSize of ships) {
-//     placeShips(board, shipSize);
-//   }
-// }
-
-// function placeShip(board, size) {
-//   const orientation = Math.random() < 0.5 ? "horizontal" : "vertical";
-//   let row, col;
-
-//   if (orientation === "horizontal") {
-//     row = Math.floor(Math.random() * boardSize);
-//     col = Math.floor(Math.random() * (boardSize - size + 1));
-//   } else {
-//     row = Math.floor(Math.random() * (boardSize - size + 1));
-//     col = Math.floor(Math.random() * boardSize);
-//   }
-//   for (let i = 0; i < size; i++) {
-//     if (orientation === "horizontal") {
-//       board[row][col + i] = size;
-//     } else {
-//       board[row + i][col] = size;
-//     }
-//   }
-// }
-
-// function renderBoards() {
-//   generateEmptyBoard(playerBoard, "playerBoard", handleCellClick);
-//   generateEmptyBoard(computerBoard, "computerBoard", () => {}); // No click handler for the computer board
-// }
-
-// placeShips(playerBoard, playerShips);
-// placeShips(computerBoard, computerShips);
-// renderBoards();
-
 //* Variables //
-let boardsize = 3; //preset to 3 first at the start.
+let boardSize = 3; // preset to 3 first at the start.
+let playerTurn = true; // to keep track of whose turn it is
 
-//for the board//
 const playerBoard = document.getElementById("playerBoard");
 const computerBoard = document.getElementById("computerBoard");
-const playerGrid = document.querySelector("#playerboard");
-const computerGrid = document.querySelector("#computerBoard");
-//ships
-const bigShipPreview = document.getElementById("#bigShip");
-const midShipPreview = document.getElementById("#midShip");
-const smlShipPreview = document.getElementById("#smlShip");
 
-//? const grid = document.querySelector(".grid"); //
-// referance from https://jsfiddle.net/pf4gbm4L/
-//*Generating a board
+// Function to generate random ship positions
+function generateRandomShipPositions() {
+  const positions = [];
+  for (let i = 0; i < 3; i++) {
+    // For simplicity, assuming ships are of size 1x1
+    const row = Math.floor(Math.random() * boardSize);
+    const col = Math.floor(Math.random() * boardSize);
+    positions.push({ row, col });
+  }
+  return positions;
+}
 
-function drawGrid(cells, container) {
-  //clear container before drawing a new grid.
+// Generate random ship positions for player and computer
+const playerShipPositions = generateRandomShipPositions();
+const computerShipPositions = generateRandomShipPositions();
+
+// Function to draw the grid
+function drawGrid(cells, container, shipPositions) {
   container.innerHTML = "";
-  //adjust cell size
+
   const cellSize = 195 / cells;
 
   for (let i = 0; i < cells; i++) {
@@ -144,33 +38,75 @@ function drawGrid(cells, container) {
       cell.style.height = cellSize + "px";
       cell.appendChild(document.createTextNode("\u00A0"));
 
+      // Add event listener for each cell to handle clicks
+      cell.addEventListener("click", function () {
+        if (playerTurn) {
+          handlePlayerClick(this, shipPositions);
+        }
+        // You can add computer's turn logic here if needed
+      });
+
       row.appendChild(cell);
     }
     container.appendChild(row);
   }
 }
 
+// Function to handle player clicks
+function handlePlayerClick(cell, shipPositions) {
+  const cellIndex = Array.from(cell.parentNode.children).indexOf(cell);
+
+  // Check if the clicked cell is part of a ship
+  const isHit = isCellPartOfShip(cellIndex, shipPositions);
+
+  // Add visual cues for hits and misses
+  if (isHit) {
+    cell.classList.add("hit");
+  } else {
+    cell.classList.add("miss");
+  }
+
+  // Switch to the computer's turn
+  playerTurn = false;
+  setTimeout(handleComputerTurn, 1000);
+}
+function handleComputerTurn() {
+  const randomCellIndex = Math.floor(Math.random() * (boardSize * boardSize));
+  const randomCell = playerBoard.children[randomCellIndex];
+
+  const isHit = isCellPartOfShip(randomCellIndex, playerShipPositions);
+  if (isHit) {
+    randomCell.classList.add("hit");
+  } else {
+    randomCell.classList.add("miss");
+  }
+  playerTurn = true;
+}
+
+// Function to check if the clicked cell is part of a ship
+function isCellPartOfShip(cellIndex, shipPositions) {
+  const cellRow = Math.floor(cellIndex / boardSize);
+  const cellCol = cellIndex % boardSize;
+
+  return shipPositions.some(
+    (position) => position.row === cellRow && position.col === cellCol
+  );
+}
+
+// Event listener for grid size change
 document.getElementById("selectGrid").addEventListener("change", function () {
-  boardsize = parseInt(this.value, 10);
-  //draw new board
-  drawGrid(boardsize, playerBoard);
-  drawGrid(boardsize, computerBoard);
+  boardSize = parseInt(this.value, 10);
+
+  // Generate new random ship positions for player and computer
+  const newPlayerShipPositions = generateRandomShipPositions();
+  const newComputerShipPositions = generateRandomShipPositions();
+
+  drawGrid(boardSize, playerBoard, newPlayerShipPositions);
+  drawGrid(boardSize, computerBoard, newComputerShipPositions);
+
+  playerTurn = true;
 });
 
-drawGrid(boardsize, playerBoard);
-drawGrid(boardsize, computerBoard);
-
-//!End of Board creation //
-
-document.querySelectorAll(".Ships div").forEach((shipPreview) => {
-  shipPreview.addEventListener("click", function () {
-    selectedShip = this;
-  });
-});
-
-// Event listener for starting the game
-document.getElementById("startButton").addEventListener("click", function () {
-  alert("Game started!");
-  console.log("Selected ship for placement:", selectedShip.id);
-  // Add ship placement logic here
-});
+// Initial draw
+drawGrid(boardSize, playerBoard, playerShipPositions);
+drawGrid(boardSize, computerBoard, computerShipPositions);
