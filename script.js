@@ -142,7 +142,7 @@ function drawGrid(cells, container) {
       cell.classList.add("cella");
       cell.style.width = cellSize + "px";
       cell.style.height = cellSize + "px";
-      cell.appendChild(document.createTextNode("\u00A0"));
+      cell.appendChild(document.createTextNode("\u00A0")); // non-breaking space character
 
       row.appendChild(cell);
     }
@@ -158,14 +158,12 @@ document.getElementById("selectGrid").addEventListener("change", function () {
   drawGrid(boardsize, computerBoard);
 });
 
-drawGrid(boardsize, playerBoard);
-drawGrid(boardsize, computerBoard);
-
 //!End of Board creation //
 
 //* Ship Placement  //
 
-function randomShipPlacement(ship) {
+function randomShipPlacement() {
+  const position = []; //reset, ship position to blank
   for (let i = 0; i < ship.boardsize; i++) {
     const row = Math.floor(Math.random() * boardSize);
     const col = Math.floor(Math.random() * boardSize);
@@ -176,3 +174,12 @@ function randomShipPlacement(ship) {
 
 const playerRandomShipPosition = randomShipPlacement();
 const computerRandomShipPosition = randomShipPlacement();
+
+//!End of Ship placement //
+
+//* Interaction functions //
+
+//To Excute JS
+
+drawGrid(boardsize, playerBoard, playerRandomShipPosition);
+drawGrid(boardsize, computerBoard, computerRandomShipPosition);
